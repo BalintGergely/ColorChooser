@@ -1,5 +1,7 @@
 package g.gf;
 
+import static java.lang.Math.*;
+
 public final class ColorConstants {
 	/**
 	 * The maximum hue a color can have.
@@ -7,11 +9,17 @@ public final class ColorConstants {
 	public static int HUES = 0x5FA;
 	private ColorConstants() {}
 	public static int blend(int a, int b){
+		int bA = (b >> 24) & 0xff;
+		if(bA == 0){
+			return a;
+		}
 		int aA = (a >> 24) & 0xff;
+		if(aA == 0){
+			return b;
+		}
 		int aR = (a >> 16) & 0xff;
 		int aG = (a >> 8) & 0xff;
 		int aB = a & 0xff;
-		int bA = (b >> 24) & 0xff;
 		int bR = (b >> 16) & 0xff;
 		int bG = (b >> 8) & 0xff;
 		int bB = b & 0xff;
@@ -21,6 +29,29 @@ public final class ColorConstants {
 		aR = ((aR * aA) + (bR * bA)) / (aA + bA);
 		aG = ((aG * aA) + (bG * bA)) / (aA + bA);
 		aB = ((aB * aA) + (bB * bA)) / (aA + bA);
+		return (aA + bA) << 24 | aR << 16 | aG << 8 | aB;
+	}
+	public static int specialBlend(int a, int b){
+		int bA = (b >> 24) & 0xff;
+		if(bA == 0){
+			return a;
+		}
+		int aA = (a >> 24) & 0xff;
+		if(aA == 0){
+			return b;
+		}
+		int aR = (a >> 16) & 0xff;
+		int aG = (a >> 8) & 0xff;
+		int aB = a & 0xff;
+		int bR = (b >> 16) & 0xff;
+		int bG = (b >> 8) & 0xff;
+		int bB = b & 0xff;
+		if(aA+bA > 0xff){
+			aA = 0xff-bA;
+		}
+		aR = (int) floor(sqrt(((aR*aR * aA) + (bR*bR * bA)) / (double)(aA + bA)));
+		aG = (int) floor(sqrt(((aG*aG * aA) + (bG*bG * bA)) / (double)(aA + bA)));
+		aB = (int) floor(sqrt(((aB*aB * aA) + (bB*bB * bA)) / (double)(aA + bA)));
 		return (aA + bA) << 24 | aR << 16 | aG << 8 | aB;
 	}
 	public static int oSub(int a,int b){
@@ -63,19 +94,19 @@ public final class ColorConstants {
 		return (color & 0x00ffffff) | ((value & 0xff) << 24);
 	}
 	public static int getAlpha(int color){
-		return (color >> 24) & 0xff;
+		return (color >>> 24) & 0xff;
 	}
 	public static int setRed(int color,int value){
 		return (color & 0xff00ffff) | ((value & 0xff) << 16);
 	}
 	public static int getRed(int color){
-		return (color >> 16) & 0xff;
+		return (color >>> 16) & 0xff;
 	}
 	public static int setGreen(int color,int value){
 		return (color & 0xffff00ff) | ((value & 0xff) << 8);
 	}
 	public static int getGreen(int color){
-		return (color >> 8) & 0xff;
+		return (color >>> 8) & 0xff;
 	}
 	public static int setBlue(int color,int value){
 		return (color & 0xffffff00) | (value & 0xff);

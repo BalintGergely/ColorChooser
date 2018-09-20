@@ -17,7 +17,12 @@ import javax.swing.text.StringContent;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
-
+/**
+ * A color chooser that updates it's color model based on the hex color code written into it.
+ * @author balintgergely
+ *
+ */
+@SuppressWarnings("exports")
 public class HexColorChooserField extends JTextPane implements ChangeListener{
 	private static final long serialVersionUID = 1L;
 	private ColorSelectionModel model;

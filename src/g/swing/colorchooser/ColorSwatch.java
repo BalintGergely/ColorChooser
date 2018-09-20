@@ -52,6 +52,10 @@ public class ColorSwatch extends JToggleButton{
 		}
 		return new Dimension(12,12);
 	}
+	public void setColor(Color c){
+		super.setBackground(c);
+		super.setForeground((c.getBlue()+c.getGreen()+c.getRed() > 448) ? Color.BLACK : Color.WHITE);
+	}
 	@Override
 	public void paintComponent(Graphics gr){
 		int w = getWidth(),h = getHeight();

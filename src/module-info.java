@@ -2,12 +2,12 @@
  * 
  */
 /**
- * @author Gergely Bálint
+ * @author Bálint Gergely
  *
  */
-module g.colorchooser {
+module g.color {
 	exports g.swing.colorchooser;
 	exports g.gf;
 
-	requires transitive java.desktop;
+	requires java.desktop;
 }
