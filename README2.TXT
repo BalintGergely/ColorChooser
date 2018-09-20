@@ -1,7 +1,9 @@
 A ColorChooser Java application with the following features:
 
 -Have two colors selected at once.
---You can mix the two colors
+--Mix colors in two ways:
+---Basic: The algorythm most image editors use. Simply averages the value of each channel weighted by alpha
+---Rooted: Produces better results. Averages the square root of each channel weighted by alpha
 -Four supported color models
 --RGBA (Red, Green, Blue, Alpha)
 --CMYK (Cyan, Magenta, Yellow, blacK, Alpha)
