@@ -2,7 +2,7 @@
  * 
  */
 /**
- * @author Bálint Gergely
+ * @author BÃ¡lint Gergely
  *
  */
 module g.color {

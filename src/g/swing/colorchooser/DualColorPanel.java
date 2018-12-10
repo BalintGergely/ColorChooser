@@ -17,9 +17,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
-import java.util.Locale;
 import java.util.Objects;
-import java.util.ResourceBundle;
 import java.util.Vector;
 import java.util.function.Consumer;
 
@@ -31,7 +29,6 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.WindowConstants;
 import javax.swing.colorchooser.ColorSelectionModel;
 import javax.swing.colorchooser.DefaultColorSelectionModel;
