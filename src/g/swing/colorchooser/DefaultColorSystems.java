@@ -39,8 +39,62 @@ public enum DefaultColorSystems implements ColorSystem{
 			return Math.round(value);
 		}
 	},
+	RGBLA("Red","Green","Blue","Lightness","Alpha"){
+		@Override
+		public int max(int index) {
+			return 0xff;
+		}
+		@Override
+		public int toRGB(float... array) {
+			float r = array[0]/255,
+					g = array[1]/255,
+					b = array[2]/255,
+					l = array[3]/255;
+			int a = Math.round(array[4]),
+				ir = Math.round((l + (1 - l) * r) * 255f),
+				ig = Math.round((l + (1 - l) * g) * 255f),
+	        	ib = Math.round((l + (1 - l) * b) * 255f);
+			if(r < 0 || r > 0xff || g < 0 || g > 0xff || b < 0 || b > 0xff || a < 0 || a > 0xff){
+				throw new IllegalArgumentException();
+			}
+			return a << 24 | ir << 16 | ig << 8 | ib;
+		}
+		@Override
+		public float[] fromRGB(int rgb, float[] array) {
+			if(array == null || array.length < 5){
+				array = new float[5];
+			}
+			int r = ColorConstants.getRed(rgb),
+				g = ColorConstants.getGreen(rgb),
+				b = ColorConstants.getBlue(rgb),
+				a = ColorConstants.getAlpha(rgb);
+			float min = min(r, g, b);
+			if(min < 255f){
+				array[0] = ((r - min) / (255f-min))*255f;
+				array[1] = ((g - min) / (255f-min))*255f;
+				array[2] = ((b - min) / (255f-min))*255f;
+			}else{
+				array[0] = 0f;
+				array[1] = 0f;
+				array[2] = 0f;
+			}
+			array[3] = min;
+			array[4] = a;
+			return array;
+		}
+		@Override
+		public int getAlphaIndex(){
+			return 4;
+		}
+		@Override
+		public int defaultValue(int index) {
+			return index == 3 ? 0xff : 0;
+		}
+		public float round(int index,float value){
+			return Math.round(value);
+		}
+	},
 	CMYK("Cyan","Magenta","Yellow","Black","Alpha"){
-
 		@Override
 		public int max(int index) {
 			return 0xff;
@@ -378,6 +432,15 @@ public enum DefaultColorSystems implements ColorSystem{
 			b = a;
 		}
 		if(b > c){
+			return b;
+		}
+		return c;
+	}
+	public static float min(float a,float b,float c){
+		if(a < b){
+			b = a;
+		}
+		if(b < c){
 			return b;
 		}
 		return c;

@@ -302,8 +302,10 @@ public class ColorChooserPanel extends JPanel{
 	private class ColorBox extends JPanel implements MouseListener, MouseMotionListener, ChangeListener{
 		private static final long serialVersionUID = 1L;
 		private ColorSlider x,y;
+		private int orient;
 		private BufferedImage buffer;
 		private int vw = -1,vh = -1;
+		private boolean mouseOver;
 		public ColorBox(ColorSlider x0,ColorSlider y0,int dim){
 			x = x0;
 			y = y0;
@@ -322,12 +324,17 @@ public class ColorChooserPanel extends JPanel{
 			}else if(y == z){
 				y = null;
 			}else{
-				z = x;
-				x = y;
-				y = z;
+				orient++;
+				if(orient == 4){
+					z = x;
+					x = y;
+					y = z;
+					orient = 0;
+				}
 				stateChanged(null);
 				return;
 			}
+			orient = 0;
 			for(ColorSlider sl : sliders){
 				if(sl != x && sl != y && sl != z){
 					if(x == null){
@@ -374,11 +381,12 @@ public class ColorChooserPanel extends JPanel{
 				ymax = system.max(y.index),
 				vw1 = Math.min(buffer.getWidth(), vw0),
 				vh1 = Math.min(buffer.getHeight(), vh0);
+			boolean xflip = orient >= 2,yflip = orient%2 == 1;
 			while(x0 < vw1){
-				values0[x.index] = valForPos(x0,xmin,xmax,vw1);
+				values0[x.index] = valForPos(xflip ? vw1-x0-1 : x0,xmin,xmax,vw1);
 				y0 = 0;
 				while(y0 < vh1){
-					values0[y.index] = valForPos(y0,ymin,ymax,vh1);
+					values0[y.index] = valForPos(yflip ? vh1-y0-1 : y0,ymin,ymax,vh1);
 					buffer.setRGB(x0, y0, system.toRGB(values0));
 					y0++;
 				}
@@ -399,12 +407,14 @@ public class ColorChooserPanel extends JPanel{
 			int x0 = posForVal(x.spinner.getNumber().floatValue(),system.min(x.index),system.max(x.index),w),
 				y0 = posForVal(y.spinner.getNumber().floatValue(),system.min(y.index),system.max(y.index),h);
 			gr.setColor(Color.BLACK);
-			gr.setXORMode(Color.WHITE);
-			gr.drawLine(x0+1,	y0-1,	x0+1,	y0-5);
-			gr.drawLine(x0+1,	y0+3,	x0+1,	y0+7);
-			gr.drawLine(x0-1,	y0+1,	x0-5,	y0+1);
-			gr.drawLine(x0+3,	y0+1,	x0+7,	y0+1);
-			gr.setPaintMode();
+			if(mouseOver){
+				gr.setXORMode(Color.WHITE);
+				gr.drawLine(x0+1,	y0-1,	x0+1,	y0-5);
+				gr.drawLine(x0+1,	y0+3,	x0+1,	y0+7);
+				gr.drawLine(x0-1,	y0+1,	x0-5,	y0+1);
+				gr.drawLine(x0+3,	y0+1,	x0+7,	y0+1);
+				gr.setPaintMode();
+			}
 			gr.setColor(new Color(~model.getSelectedColor().getRGB()));
 			gr.drawRect(0, 0, w+1, h+1);
 		}
@@ -425,10 +435,12 @@ public class ColorChooserPanel extends JPanel{
 			//
 		}
 		public void mouseEntered(MouseEvent e) {
-			//
+			mouseOver = true;
+			repaint();
 		}
 		public void mouseExited(MouseEvent e) {
-			//
+			mouseOver = false;
+			repaint();
 		}
 	}
 	static float valForPos(int x,int min,int max,int v){
