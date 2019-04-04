@@ -237,7 +237,7 @@ public class ColorChooserPanel extends JPanel{
 		private void repaintBuffer(int v0,float... values0){
 			int i = 0,min = system.min(index),max = system.max(index),v1 = Math.min(buffer.getWidth(), v0);
 			while(i < v1){
-				values0[index] = valForPos(i,min,max,v1);
+				values0[index] = valForPos(i,min,max,v1,false);
 				int rgb = system.toRGB(values0);
 				if(system.getAlphaIndex() == index){
 					buffer.setRGB(i, 1, ColorConstants.blend(0xff777777, rgb));
@@ -257,7 +257,7 @@ public class ColorChooserPanel extends JPanel{
 				repaintBuffer(w,val);
 			}
 			gr.drawImage(buffer,1,1,Math.max(buffer.getWidth(),w),h,null);
-			int x = posForVal(spinner.getNumber().floatValue(),system.min(index),system.max(index),w)+1;
+			int x = posForVal(spinner.getNumber().floatValue(),system.min(index),system.max(index),w,false)+1;
 			gr.setXORMode(Color.WHITE);
 			gr.setColor(Color.BLACK);
 			gr.drawLine(x, 1, x, (int)Math.floor(h*0.17)+1);
@@ -272,7 +272,7 @@ public class ColorChooserPanel extends JPanel{
 		}
 		@Override
 		public void mouseDragged(MouseEvent e) {
-			event(valForPos(e.getX()-1,system.min(index),system.max(index),getWidth()-2));
+			event(valForPos(e.getX()-1,system.min(index),system.max(index),getWidth()-2,false));
 		}
 		@Override
 		public void mouseMoved(MouseEvent e) {
@@ -383,10 +383,10 @@ public class ColorChooserPanel extends JPanel{
 				vh1 = Math.min(buffer.getHeight(), vh0);
 			boolean xflip = orient >= 2,yflip = orient%2 == 1;
 			while(x0 < vw1){
-				values0[x.index] = valForPos(xflip ? vw1-x0-1 : x0,xmin,xmax,vw1);
+				values0[x.index] = valForPos(x0,xmin,xmax,vw1,xflip);
 				y0 = 0;
 				while(y0 < vh1){
-					values0[y.index] = valForPos(yflip ? vh1-y0-1 : y0,ymin,ymax,vh1);
+					values0[y.index] = valForPos(y0,ymin,ymax,vh1,yflip);
 					buffer.setRGB(x0, y0, system.toRGB(values0));
 					y0++;
 				}
@@ -404,8 +404,8 @@ public class ColorChooserPanel extends JPanel{
 				repaintBuffer(w,h,val);
 			}
 			gr.drawImage(buffer, 1, 1, Math.max(w, buffer.getWidth()), Math.max(h, buffer.getHeight()), null);
-			int x0 = posForVal(x.spinner.getNumber().floatValue(),system.min(x.index),system.max(x.index),w),
-				y0 = posForVal(y.spinner.getNumber().floatValue(),system.min(y.index),system.max(y.index),h);
+			int x0 = posForVal(x.spinner.getNumber().floatValue(),system.min(x.index),system.max(x.index),w,orient >= 2),
+				y0 = posForVal(y.spinner.getNumber().floatValue(),system.min(y.index),system.max(y.index),h,orient%2 == 1);
 			gr.setColor(Color.BLACK);
 			if(mouseOver){
 				gr.setXORMode(Color.WHITE);
@@ -419,8 +419,8 @@ public class ColorChooserPanel extends JPanel{
 			gr.drawRect(0, 0, w+1, h+1);
 		}
 		public void mouseDragged(MouseEvent e) {
-			x.event(valForPos(e.getX()-1,system.min(x.index),system.max(x.index),getWidth()-2));
-			y.event(valForPos(e.getY()-1,system.min(y.index),system.max(y.index),getHeight()-2));
+			x.event(valForPos(e.getX()-1,system.min(x.index),system.max(x.index),getWidth()-2,orient >= 2));
+			y.event(valForPos(e.getY()-1,system.min(y.index),system.max(y.index),getHeight()-2,orient%2 == 1));
 		}
 		public void mouseMoved(MouseEvent e) {
 			//
@@ -443,14 +443,19 @@ public class ColorChooserPanel extends JPanel{
 			repaint();
 		}
 	}
-	static float valForPos(int x,int min,int max,int v){
+	static float valForPos(int x,int min,int max,int v,boolean flip){
 		if(v <= max){
 			min = 0;
 		}else if(v < max-min){
 			min = max-v;
 		}
 		int range = max-min;
-		float val = (x * (range/(float)v))+min;
+		float val;
+		if(flip){
+			val = max-(x * (range/(float)v));
+		}else{
+			val = (x * (range/(float)v))+min;
+		}
 		if(val > max){
 			return max;
 		}
@@ -459,14 +464,19 @@ public class ColorChooserPanel extends JPanel{
 		}
 		return val;
 	}
-	static int posForVal(float val,int min,int max,int v){
+	static int posForVal(float val,int min,int max,int v,boolean flip){
 		if(v <= max){
 			min = 0;
 		}else if(v < max-min){
 			min = max-v;
 		}
 		int range = max-min;
-		int x = (int)Math.floor(((val-min) / (range/(float)v)));
+		int x;
+		if(flip){
+			x = (int)Math.floor(((max-val-min) / (range/(float)v)));
+		}else{
+			x = (int)Math.floor(((val-min) / (range/(float)v)));
+		}
 		if(x >= v){
 			return v-1;
 		}
